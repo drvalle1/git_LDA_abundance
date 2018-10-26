@@ -1,0 +1,64 @@
+# rm(list=ls(all=TRUE))
+library('Rcpp')
+set.seed(4)
+
+#get functions
+setwd('U:\\GIT_models\\git_LDA_abundance')
+source('gibbs functions.R')
+sourceCpp('aux1.cpp')
+
+#get data
+dat=read.csv('fake data5.csv',as.is=T)
+ind=which(colnames(dat)=='X')
+y=data.matrix(dat[,-ind]); dim(y)
+nspp=ncol(y)
+nloc=nrow(y)
+
+#useful stuff
+ncomm=10
+hi=0.999999
+lo=0.000001
+
+#initial values of parameters
+theta=matrix(1/ncomm,nloc,ncomm)
+phi=matrix(1/nspp,ncomm,nspp)
+gamma=0.1; 
+
+#gibbs details
+ngibbs=1000
+theta.out=matrix(NA,ngibbs,ncomm*nloc)
+phi.out=matrix(NA,ngibbs,ncomm*nspp)
+llk=rep(NA,ngibbs)
+options(warn=2)
+for (i in 1:ngibbs){
+  print(i)   
+  
+  #sample z
+  tmp=samplez(theta=theta, phi=phi, y=y, ncommun=ncomm, nloc=nloc, nspp=nspp)
+  nlk=tmp$nlk
+  # nlk=nlk.true
+  nks=tmp$nks
+  # nks=nks.true
+  
+  #get parameters  
+  tmp=get.theta(nlk=nlk,gamma=gamma,ncomm=ncomm,nloc=nloc)
+  vmat=tmp$vmat
+  theta=tmp$theta
+  # theta[theta>hi]=hi; theta[theta<lo]=lo
+  # theta=theta.true
+  
+  phi=rdirichlet1(alpha=nks+1,ncomm=ncomm,nspp=nspp) 
+  # phi[phi>hi]=hi; phi[phi<lo]=lo
+  # phi=phi.true
+  
+  #calculate loglikelihood
+  prob=theta%*%phi
+  prob[prob>hi]=hi; prob[prob<lo]=lo
+
+  #store results  
+  llk[i]=sum(y*log(prob))
+  theta.out[i,]=theta
+  phi.out[i,]=phi
+}
+
+plot(llk,type='l',ylim=range(llk,na.rm=T))
