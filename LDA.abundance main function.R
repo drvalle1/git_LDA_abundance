@@ -1,4 +1,4 @@
-LDA.abundance=function(y,ncomm,gamma,ngibbs,nburn){
+LDA.abundance=function(y,ncomm,gamma,ngibbs,nburn,psi){
   #get data
   nspp=ncol(y)
   nloc=nrow(y)
@@ -33,7 +33,7 @@ LDA.abundance=function(y,ncomm,gamma,ngibbs,nburn){
     # theta[theta>hi]=hi; theta[theta<lo]=lo
     # theta=theta.true
     
-    phi=rdirichlet1(alpha=nks+1,ncomm=ncomm,nspp=nspp) 
+    phi=rdirichlet1(alpha=nks+psi,ncomm=ncomm,nspp=nspp) 
     # phi[phi>hi]=hi; phi[phi<lo]=lo
     # phi=phi.true
     

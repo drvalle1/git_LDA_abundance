@@ -1,8 +1,8 @@
 rm(list=ls(all=TRUE))
 set.seed(4)
 
-nloc=1000
-nspp=100
+nloc=5000
+nspp=200
 ncommun=5
 base=floor(nloc/(ncommun-2))
 
