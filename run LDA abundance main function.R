@@ -12,16 +12,15 @@ dat=read.csv('fake data5.csv',as.is=T)
 ind=which(colnames(dat)=='X')
 y=data.matrix(dat[,-ind]); dim(y)
 
-ncomm=10
-gamma=0.1
+ncomm=30
 ngibbs=1000
 nburn=ngibbs/2
 psi=0.01
-res=LDA.abundance(y=y,ncomm=ncomm,gamma=gamma,
-                  ngibbs=ngibbs,nburn=nburn,psi=psi)
+gamma=0.1
+res=LDA.abundance(y=y,ncomm=ncomm,ngibbs=ngibbs,nburn=nburn,psi=psi,gamma=gamma)
 
 plot(res$llk,type='l')
-seq1=1:nrow(res$theta)
+seq1=250:nrow(res$theta)
 theta=colMeans(res$theta[seq1,])
 theta1=matrix(theta,nrow(y),ncomm)
 boxplot(theta1)

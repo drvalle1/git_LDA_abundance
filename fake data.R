@@ -2,7 +2,7 @@ rm(list=ls(all=TRUE))
 set.seed(4)
 
 nloc=5000
-nspp=200
+nspp=100
 ncommun=5
 base=floor(nloc/(ncommun-2))
 
@@ -31,7 +31,7 @@ for (i in 1:ncommun) lines(1:nloc,theta[,i],col=i)
 #generate phi  
 tmp=matrix(rnorm(ncommun*nspp,mean=0,sd=2),ncommun,nspp)
 tmp[tmp<0.1]=0.1
-tmp[,1:(2*ncommun)]=cbind(diag(8,ncommun),diag(8,ncommun))
+tmp[,1:(2*ncommun)]=cbind(diag(8,ncommun))
 phi=tmp/matrix(rowSums(tmp),ncommun,nspp)
 round(phi[,1:20],2)
 table(round(phi,2))

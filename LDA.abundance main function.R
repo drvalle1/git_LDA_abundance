@@ -1,4 +1,4 @@
-LDA.abundance=function(y,ncomm,gamma,ngibbs,nburn,psi){
+LDA.abundance=function(y,ncomm,ngibbs,nburn,psi,gamma){
   #get data
   nspp=ncol(y)
   nloc=nrow(y)
@@ -6,15 +6,18 @@ LDA.abundance=function(y,ncomm,gamma,ngibbs,nburn,psi){
   #useful stuff
   hi=0.999999
   lo=0.000001
-  
+
   #initial values of parameters
   theta=matrix(1/ncomm,nloc,ncomm)
   phi=matrix(1/nspp,ncomm,nspp)
 
   #gibbs details
   theta.out=matrix(NA,ngibbs,ncomm*nloc)
+  vmat.out=matrix(NA,ngibbs,ncomm*nloc)
   phi.out=matrix(NA,ngibbs,ncomm*nspp)
   llk=rep(NA,ngibbs)
+  # log.prior=rep(NA,ngibbs)
+  
   options(warn=2)
   for (i in 1:ngibbs){
     print(i)   
@@ -27,7 +30,8 @@ LDA.abundance=function(y,ncomm,gamma,ngibbs,nburn,psi){
     # nks=nks.true
     
     #get parameters  
-    tmp=get.theta(nlk=nlk,gamma=gamma,ncomm=ncomm,nloc=nloc)
+    tmp=get.theta(nlk=nlk,gamma=gamma,ncomm=ncomm,nloc=nloc,i=i,nburn=nburn,nks=nks,theta=theta,change1=20)
+    nks=tmp$nks
     vmat=tmp$vmat
     theta=tmp$theta
     # theta[theta>hi]=hi; theta[theta<lo]=lo
@@ -41,13 +45,24 @@ LDA.abundance=function(y,ncomm,gamma,ngibbs,nburn,psi){
     prob=theta%*%phi
     prob[prob>hi]=hi; prob[prob<lo]=lo
     
+    #calculate log prior (I often get Inf!!)
+    # vmat1=vmat[,-ncomm]
+    # vmat1[vmat1>hi]=hi; vmat1[vmat1<lo]=lo
+    # log.p.betas=sum(dbeta(vmat1,1,gamma,log=T))
+    # log.p.phi=sum(log(ddirichlet(phi,rep(psi,nspp))))
+    # print(c(log.p.betas,log.p.phi))
+    
     #store results  
     llk[i]=sum(y*log(prob))
+    # log.prior[i]=log.p.betas+log.p.phi
     theta.out[i,]=theta
     phi.out[i,]=phi
+    vmat.out[i,]=vmat
   }
   seq1=nburn:ngibbs
   list(llk=llk[seq1],
+       # log.prior=log.prior[seq1],
        theta=theta.out[seq1,],
-       phi=phi.out[seq1,])
+       phi=phi.out[seq1,],
+       vmat=vmat.out[seq1,])
 }
