@@ -19,11 +19,21 @@ LDA.abundance=function(y,ncomm,ngibbs,nburn,psi,gamma){
   # log.prior=rep(NA,ngibbs)
   
   options(warn=2)
+  zeroes=array(0,dim=c(nloc,nspp,ncomm))
   for (i in 1:ngibbs){
     print(i)   
     
+    #re-order z from time to time
+    if (i<nburn & i%%50==0){
+      med=apply(theta,2,median)
+      ordem=order(med,decreasing=T)
+      theta=theta[,ordem]
+      phi=phi[ordem,]
+    }
+    
     #sample z
-    tmp=samplez(theta=theta, phi=phi, y=y, ncommun=ncomm, nloc=nloc, nspp=nspp)
+    tmp=samplez(theta=theta, phi=phi, y=y, ncommun=ncomm, nloc=nloc, nspp=nspp, zeroes=zeroes)
+    array.lsk=tmp$ArrayLSK
     nlk=tmp$nlk
     # nlk=nlk.true
     nks=tmp$nks
@@ -64,5 +74,6 @@ LDA.abundance=function(y,ncomm,ngibbs,nburn,psi,gamma){
        # log.prior=log.prior[seq1],
        theta=theta.out[seq1,],
        phi=phi.out[seq1,],
-       vmat=vmat.out[seq1,])
+       vmat=vmat.out[seq1,],
+       array.lsk=array.lsk)
 }

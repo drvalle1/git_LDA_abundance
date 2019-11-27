@@ -1,3 +1,5 @@
+// [[Rcpp::depends("RcppArmadillo")]]
+#include <RcppArmadillo.h>
 #include <Rcpp.h>
 #include <iostream>
 #include <ctime>
@@ -34,7 +36,12 @@ IntegerVector rmultinom1(NumericVector runif1, NumericVector prob, int ncommun) 
 
 //' This function samples z's
 // [[Rcpp::export]]
-List samplez(NumericMatrix theta, NumericMatrix phi, IntegerMatrix y, int ncommun, int nloc, int nspp) {
+List samplez(NumericMatrix theta, NumericMatrix phi, IntegerMatrix y, int ncommun, int nloc, int nspp,
+             NumericVector zeroes) {
+
+  //convert array into arma::cube
+  NumericVector vecArray=clone(zeroes);
+  arma::cube ArrayLSK(vecArray.begin(),nloc, nspp, ncommun);
   
   IntegerMatrix nlk(nloc,ncommun);
   IntegerMatrix nks(ncommun,nspp);
@@ -52,13 +59,18 @@ List samplez(NumericMatrix theta, NumericMatrix phi, IntegerMatrix y, int ncommu
       //multinomial draw
       znew=rmultinom1(runif(y(i,j)),prob,ncommun);
       
+      for (int k=0; k<ncommun; k++){
+        ArrayLSK(i,j,k)=znew[k];  
+      }
+
       //add to results to export
       nlk(i,_)=nlk(i,_)+znew;
       nks(_,j)=nks(_,j)+znew;
     }
   }
   return List::create(Named("nlk") = nlk,
-                      Named("nks") = nks);
+                      Named("nks") = nks,
+                      Named("ArrayLSK") = ArrayLSK);
 }
 
 //' This function converts vmat into theta
