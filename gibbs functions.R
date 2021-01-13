@@ -20,3 +20,9 @@ rdirichlet1=function(alpha,ncomm,nspp){
   soma=matrix(rowSums(tmp),ncomm,nspp)
   tmp/soma
 }
+#this function generates dirichlet random variables (1 one for each row of alpha)
+rdirichlet2=function(alpha,nloc,ncomm){
+  tmp=matrix(rgamma(n=ncomm*nloc,alpha,1),nloc,ncomm)
+  soma=matrix(rowSums(tmp),nloc,ncomm)
+  tmp/soma
+}
