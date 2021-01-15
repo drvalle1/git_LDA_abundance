@@ -17,16 +17,20 @@ ind=which(colnames(dat)=='X')
 y=data.matrix(dat[,-ind]); dim(y)
 nspp=ncol(y)
 ncomm=5
+nloc=nrow(y)
 
-#get phi
+#get theta
 setwd('U:\\GIT_models\\git_LDA_abundance')
-theta=data.matrix(read.csv('theta true.csv',as.is=T))
+theta=read.csv('theta true.csv',as.is=T)
+npost=1000
+theta.post=matrix(unlist(theta),npost,ncomm*nloc,byrow=T)
 
 #run folding operation
 ngibbs=1000
 nburn=ngibbs/2
 psi=0.1
-res=phi.given.theta(y=y,ncomm=ncomm,ngibbs=ngibbs,nburn=nburn,theta=theta,psi=psi)
+res=phi.given.theta(y=y,ncomm=ncomm,ngibbs=ngibbs,nburn=nburn,
+                    theta.post=theta.post,psi=psi)
 
 plot(res$llk,type='l')
 seq1=1:nrow(res$phi)

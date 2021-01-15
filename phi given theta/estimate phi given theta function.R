@@ -1,4 +1,4 @@
-phi.given.theta=function(y,ncomm,ngibbs,nburn,theta,psi){
+phi.given.theta=function(y,ncomm,ngibbs,nburn,theta.post,psi){
   #get data
   nspp=ncol(y)
   nloc=nrow(y)
@@ -9,6 +9,11 @@ phi.given.theta=function(y,ncomm,ngibbs,nburn,theta,psi){
 
   #initial value
   phi=matrix(1/nspp,ncomm,nspp)
+  npost=nrow(theta.post)
+  ind=sample(1:npost,size=1)
+  ncomm.init=ncol(theta.post)/nloc
+  tmp=matrix(theta.post[ind,],nloc,ncomm.init)
+  theta=tmp[,1:ncomm]
   
   #gibbs details
   phi.out=matrix(NA,ngibbs,ncomm*nspp)
@@ -31,6 +36,11 @@ phi.given.theta=function(y,ncomm,ngibbs,nburn,theta,psi){
     #get parameters  
     phi=rdirichlet1(alpha=nks+psi,ncomm=ncomm,nspp=nspp) 
 
+    #get theta
+    ind=sample(1:npost,size=1)
+    tmp=matrix(theta.post[ind,],nloc,ncomm.init)
+    theta=tmp[,1:ncomm]
+    
     #calculate loglikelihood
     prob=theta%*%phi
     prob[prob>hi]=hi; prob[prob<lo]=lo
