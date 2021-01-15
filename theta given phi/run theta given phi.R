@@ -7,8 +7,8 @@ setwd('U:\\GIT_models\\git_LDA_abundance')
 source('gibbs functions.R')
 sourceCpp('aux1.cpp')
 
-setwd('U:\\GIT_models\\git_LDA_abundance\\folding')
-source('folding main function.R')
+setwd('U:\\GIT_models\\git_LDA_abundance\\theta given phi')
+source('theta given phi main function.R')
 
 #get data
 setwd('U:\\GIT_models\\git_LDA_abundance')
@@ -28,7 +28,7 @@ phi.post=matrix(unlist(phi),npost,nspp*ncomm,byrow=T)
 ngibbs=1000
 nburn=ngibbs/2
 gamma=0.1
-res=folding.in(y=y,ncomm=ncomm,ngibbs=ngibbs,nburn=nburn,phi.post=phi.post,gamma=gamma)
+res=theta.given.phi(y=y,ncomm=ncomm,ngibbs=ngibbs,nburn=nburn,phi.post=phi.post,gamma=gamma)
 
 plot(res$llk,type='l')
 seq1=1:nrow(res$theta)

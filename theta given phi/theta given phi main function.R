@@ -1,4 +1,4 @@
-folding.in=function(y,ncomm,ngibbs,nburn,phi.post,gamma){
+theta.given.phi=function(y,ncomm,ngibbs,nburn,phi.post,gamma){
   #get data
   nspp=ncol(y)
   nloc=nrow(y)
