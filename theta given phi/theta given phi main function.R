@@ -63,5 +63,6 @@ theta.given.phi=function(y,ncomm,ngibbs,nburn,phi.post,gamma){
   seq1=nburn:ngibbs
   list(llk=llk[seq1],
        # log.prior=log.prior[seq1],
-       theta=theta.out[seq1,])
+       theta=theta.out[seq1,],
+       array.lsk=array.lsk)
 }
