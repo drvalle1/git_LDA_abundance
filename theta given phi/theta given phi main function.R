@@ -1,4 +1,4 @@
-theta.given.phi=function(y,ncomm,ngibbs,nburn,phi.post,gamma){
+theta.given.phi=function(y,ncomm,ngibbs,nburn,phi.post,gamma,mean.theta){
   #get data
   nspp=ncol(y)
   nloc=nrow(y)
@@ -16,7 +16,8 @@ theta.given.phi=function(y,ncomm,ngibbs,nburn,phi.post,gamma){
   phi=tmp[1:ncomm,]
 
   #gibbs details
-  theta.out=matrix(NA,ngibbs,ncomm*nloc)
+  if (mean.theta==F) theta.out=matrix(NA,ngibbs,ncomm*nloc)
+  if (mean.theta==T) theta.out=matrix(0,nloc,ncomm)
   llk=rep(NA,ngibbs)
   # log.prior=rep(NA,ngibbs)
   
@@ -58,11 +59,15 @@ theta.given.phi=function(y,ncomm,ngibbs,nburn,phi.post,gamma){
     #store results  
     llk[i]=sum(y*log(prob))
     # log.prior[i]=log.p.betas+log.p.phi
-    theta.out[i,]=theta
+    if (mean.theta==F) theta.out[i,]=theta
+    if (mean.theta==T & i>=nburn) theta.out=theta.out+theta
   }
   seq1=nburn:ngibbs
-  list(llk=llk[seq1],
+  nseq1=length(seq1)
+  k=list(llk=llk[seq1],
        # log.prior=log.prior[seq1],
-       theta=theta.out[seq1,],
-       array.lsk=array.lsk)
+         array.lsk=array.lsk)
+  if (mean.theta==F) k$theta=theta.out[seq1,]
+  if (mean.theta==T) k$theta=theta.out/nseq1
+  k
 }

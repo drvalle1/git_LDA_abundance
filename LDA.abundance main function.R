@@ -1,4 +1,4 @@
-LDA.abundance=function(y,ncomm,ngibbs,nburn,psi,gamma){
+LDA.abundance=function(y,ncomm,ngibbs,nburn,psi,gamma,mean.theta,mean.phi){
   #get data
   nspp=ncol(y)
   nloc=nrow(y)
@@ -12,9 +12,12 @@ LDA.abundance=function(y,ncomm,ngibbs,nburn,psi,gamma){
   phi=matrix(1/nspp,ncomm,nspp)
 
   #gibbs details
-  theta.out=matrix(NA,ngibbs,ncomm*nloc)
-  vmat.out=matrix(NA,ngibbs,ncomm*nloc)
-  phi.out=matrix(NA,ngibbs,ncomm*nspp)
+  if (!mean.theta) theta.out=matrix(NA,ngibbs,ncomm*nloc)
+  if (mean.theta)  theta.out=matrix(0,nloc,ncomm)
+
+  if (!mean.phi) phi.out=matrix(NA,ngibbs,ncomm*nspp)  
+  if (mean.phi)  phi.out=matrix(0,ncomm,nspp)
+  
   llk=rep(NA,ngibbs)
   # log.prior=rep(NA,ngibbs)
   
@@ -65,15 +68,20 @@ LDA.abundance=function(y,ncomm,ngibbs,nburn,psi,gamma){
     #store results  
     llk[i]=sum(y*log(prob))
     # log.prior[i]=log.p.betas+log.p.phi
-    theta.out[i,]=theta
-    phi.out[i,]=phi
-    vmat.out[i,]=vmat
+    
+    if (mean.phi & i>=nburn)    phi.out=phi.out+phi
+    if (!mean.phi)              phi.out[i,]=phi
+    if (mean.theta & i>=nburn)  theta.out=theta.out+theta
+    if (!mean.theta)            theta.out[i,]=theta
   }
+
+  #output results
   seq1=nburn:ngibbs
-  list(llk=llk[seq1],
-       # log.prior=log.prior[seq1],
-       theta=theta.out[seq1,],
-       phi=phi.out[seq1,],
-       vmat=vmat.out[seq1,],
-       array.lsk=array.lsk)
+  nseq=length(seq1)
+  k=list(llk=llk,array.lsk=array.lsk)
+  if (!mean.phi) k$phi=phi.out[seq1,]
+  if (mean.phi)  k$phi=phi.out/nseq #just posterior mean
+  if (!mean.theta) k$theta=theta.out[seq1,]
+  if (mean.theta)  k$theta=theta.out/nseq #just posterior mean
+  k
 }
